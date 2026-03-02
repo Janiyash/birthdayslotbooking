@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Yash Birthday Public Convoy 2026</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
 
 /* ===== BODY ===== */
@@ -385,19 +384,22 @@ Thank you for booking your slot for Our Birthday Public Convoy 2026.</p>
 </div>
 
 <script type="module">
-
+import { firebaseConfig } from "./firebase-config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
 
-const firebaseConfig={
-  apiKey: "AIzaSyAAjowyn0OPtkVLZliB5iKN7WTS3I00dPE",
-  authDomain: "yash-birthday-convoy-2026.firebaseapp.com",
-  databaseURL: "https://yash-birthday-convoy-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "yash-birthday-convoy-2026",
-  storageBucket: "yash-birthday-convoy-2026.firebasestorage.app",
-  messagingSenderId: "474014206801",
-  appId: "1:474014206801:web:f029925dbdcd5c9f7ca170"
+
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  databaseURL: "YOUR_DATABASE_URL",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
+
 
 const app=initializeApp(firebaseConfig);
 const db=getDatabase(app);
