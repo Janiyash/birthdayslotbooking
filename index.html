@@ -390,14 +390,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebas
 import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  databaseURL: process.env.FIREBASE_DATABASE_URL,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID
+  apiKey: "AIzaSyAAjowyn0OPtkVLZliB5iKN7WTS3I00dPE",
+  authDomain: "yash-birthday-convoy-2026.firebaseapp.com",
+  databaseURL: "https://yash-birthday-convoy-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "yash-birthday-convoy-2026",
+  storageBucket: "yash-birthday-convoy-2026.firebasestorage.app",
+  messagingSenderId: "474014206801",
+  appId: "1:474014206801:web:f029925dbdcd5c9f7ca170"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let totalSlots=30;
