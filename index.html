@@ -363,27 +363,80 @@ margin-top:20px;
 </div>
 
 <div class="popup" id="popup">
-<div class="popup-box professional-popup">
+  <div class="popup-box professional-popup">
 
-<div class="popup-header">
-<div class="success-icon">✔</div>
-<h2>Booking Confirmed</h2>
-<span class="close-icon" onclick="closePopup()">✕</span>
+    <div class="popup-header">
+      <div class="success-icon">✔</div>
+      <h2>Booking Confirmed</h2>
+      <span class="close-icon" onclick="closePopup()">✕</span>
+    </div>
+
+    <div class="popup-body" id="popupContent"></div>
+
+    <div class="popup-footer" style="position:relative;">
+
+      <button class="primary-btn" onclick="closePopup()">Done</button>
+
+      <p style="margin-top:30px;font-size:14px;color:#ec1010;line-height:1.6;">
+        Thank you for booking your slot for Our Birthday Public Convoy 2026.
+      </p>
+
+      <p>
+        We truly appreciate your participation and look forward to seeing you on the road.
+      </p>
+
+      <!-- GIF in Corner -->
+      <img src="https://res.cloudinary.com/denasb3ca/image/upload/v1772544409/standard_m4d1n7.gif">
+    </div>
+
+  </div>
+</div> <!-- ✅ close popup completely here -->
+
+<!-- ✅ imageModal is now a separate full‑screen overlay -->
+<div id="imageModal" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.9);
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  flex-direction:column;
+">
+
+  <img id="modalImage" alt="" style="
+    max-width:90%;
+    max-height:80vh;
+    border-radius:15px;
+    box-shadow:0 0 40px red;
+  ">
+
+  <br>
+
+  <div style="display:flex; gap:15px; flex-wrap:wrap; justify-content:center;">
+
+    <a id="downloadBtn" download style="
+      background:#ff4444;
+      color:white;
+      padding:12px 25px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:bold;
+    ">Open in New Tab</a>
+
+    <button onclick="closeImageModal()" style="
+      background:#222;
+      color:white;
+      border:none;
+      padding:12px 25px;
+      border-radius:10px;
+      cursor:pointer;
+    ">Close</button>
+  </div>
 </div>
-
-<div class="popup-body" id="popupContent"></div>
-
-<div class="popup-footer">
-<button class="primary-btn" onclick="closePopup()">Done</button>
-<p style="margin-top:30px;font-size:14px;color:#ec1010;line-height:1.6;">
-Thank you for booking your slot for Our Birthday Public Convoy 2026.</p>
-<p>We truly appreciate your participation and look forward to seeing you on the road.
-</p>
-</div>
-
-</div>
-</div>
-
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -402,10 +455,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let totalSlots = 0;
-let selectedSlot=null;
-let isAdmin=false;
-const slotContainer=document.getElementById("slotContainer");
+let selectedSlot = null;
+let isAdmin = false;
 
+const slotContainer      = document.getElementById("slotContainer");
+const publicImageDisplay = document.getElementById("publicImageDisplay");
+const alertBox           = document.getElementById("alertBox");
 function createSlot(num,name=null){
 const btn=document.createElement("button");
 btn.classList.add("slot-btn");
@@ -439,6 +494,8 @@ Object.keys(data)
 .forEach(key=>{
     createSlot(parseInt(key.replace("slot","")), data[key].name);
 });
+
+loadBookedSlots(); // 🔥 ADD THIS LINE HERE
 }else{
 // First time setup → create 30 default slots
 let defaultSlots = {};
@@ -453,18 +510,21 @@ set(slotsRef, defaultSlots).then(()=>loadSlots());
 loadSlots();
 const bookingsRef=ref(db,"bookings");
 
+function loadBookedSlots(){
 get(bookingsRef).then(snap=>{
-if(snap.exists()){
-const data=snap.val();
+if(!snap.exists()) return;
+
+const data = snap.val();
+
 Object.keys(data).forEach(k=>{
-const slot=parseInt(k.replace("slot",""));
-const btn=document.querySelector(`[data-slot='${slot}']`);
+const slot = parseInt(k.replace("slot",""));
+const btn = document.querySelector(`[data-slot='${slot}']`);
 if(btn){
 btn.classList.add("booked");
 }
 });
-}
 });
+}
 
 function showAlert(msg){
 alertBox.innerText=msg;
@@ -629,11 +689,7 @@ showAlert("Slot added permanently");
 });
 };
 
-window.deleteSelectedSlot=()=>{
-if(!selectedSlot)return showAlert("Select slot first");
-document.querySelector(`[data-slot='${selectedSlot}']`).remove();
-selectedSlot=null;
-};
+
 
 window.renameSlot = ()=>{
 if(!selectedSlot) return showAlert("Select slot first");
@@ -658,21 +714,60 @@ window.removeBackground=()=>{
 document.body.style.background="#000";
 };
 
-window.setPublicImage=()=>{
-const url=publicImageInput.value.trim();
-if(!url)return;
-set(ref(db,"public/image"),url).then(()=>{
-publicImageDisplay.innerHTML=
-"<img src='"+url+"' style='max-width:100%;margin-top:20px;border-radius:10px;'>";
+window.setPublicImage = ()=>{
+const url = publicImageInput.value.trim();
+if(!url) return showAlert("Enter image URL");
+
+const imageId = "img" + Date.now();
+
+set(ref(db,"public/images/"+imageId),{
+    url:url,
+    timestamp: new Date().toISOString()
+}).then(()=>{
+    publicImageInput.value="";
+    loadPublicImages();
+    showAlert("Image added successfully");
 });
 };
 
-get(ref(db,"public/image")).then(snap=>{
-if(snap.exists()){
-publicImageDisplay.innerHTML=
-"<img src='"+snap.val()+"' style='max-width:100%;margin-top:20px;border-radius:10px;'>";
-}
+function loadPublicImages(){
+get(ref(db,"public/images")).then(snap=>{
+
+publicImageDisplay.innerHTML="";
+
+if(!snap.exists()) return;
+
+const data = snap.val();
+
+Object.keys(data)
+.sort((a,b)=> new Date(data[b].timestamp) - new Date(data[a].timestamp))
+.forEach(key=>{
+
+const wrapper = document.createElement("div");
+wrapper.style.display="inline-block";
+wrapper.style.margin="10px";
+wrapper.style.textAlign="center";
+
+const img = document.createElement("img");
+img.src = data[key].url;
+img.style.maxWidth="180px";
+img.style.borderRadius="10px";
+img.style.cursor="pointer";
+img.style.boxShadow="0 0 15px rgba(255,0,0,0.6)";
+
+img.onclick = ()=>{
+window.openImageModal(data[key].url);
+};
+
+wrapper.appendChild(img);
+publicImageDisplay.appendChild(wrapper);
+
 });
+
+});
+}
+
+loadPublicImages();
 window.viewBookings = () => {
 
   get(bookingsRef).then(snapshot => {
@@ -743,36 +838,70 @@ window.closeBookingPopup = () => {
 };
 
 document.addEventListener("contextmenu", function(e){
-    e.preventDefault();
+  e.preventDefault();
 });
 
 // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
 document.addEventListener("keydown", function(e){
 
-    // F12
-    if (e.key === "F12") {
-        e.preventDefault();
+     // F12
+     if (e.key === "F12") {
+         e.preventDefault();
+     
+     // Ctrl+Shift+I
+     if (e.ctrlKey && e.shiftKey && e.key === "I") {
+         e.preventDefault();
+     
+     // Ctrl+Shift+J
+     if (e.ctrlKey && e.shiftKey && e.key === "J") {
+         e.preventDefault();
+     
+     // Ctrl+U (View Source)
+     if (e.ctrlKey && e.key === "u") {
+         e.preventDefault();
+     
+     }
+     }
+     }
+     }});
+// ===== IMAGE MODAL SYSTEM (100% WORKING FIX) =====
+// ===== IMAGE MODAL SYSTEM (FINAL CLEAN VERSION) =====
+
+// Make functions GLOBAL inside module so other code can call them
+window.openImageModal = function (url) {
+  if (!url) return;
+
+  const modal       = document.getElementById("imageModal");
+  const modalImg    = document.getElementById("modalImage");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const newTabBtn   = document.getElementById("newTabBtn");
+
+  modal.style.display = "flex";
+  modalImg.src        = url;
+
+  // Set download link
+  downloadBtn.href = url;
+  downloadBtn.target = "_blank"; // Open in new tab to trigger download
+  downloadBtn.setAttribute("download", "YBP_Image_" + Date.now() + ".jpg");
+
+  // Set "open in new tab" link
+  newTabBtn.href = url;
+};
+
+window.closeImageModal = function () {
+  const modal = document.getElementById("imageModal");
+  if (modal) modal.style.display = "none";
+};
+
+// Close when clicking on dark background (but not on buttons or image)
+const imageModalEl = document.getElementById("imageModal");
+if (imageModalEl) {
+  imageModalEl.addEventListener("click", function (e) {
+    if (e.target === this) {
+      this.style.display = "none";
     }
-
-    // Ctrl+Shift+I
-    if (e.ctrlKey && e.shiftKey && e.key === "I") {
-        e.preventDefault();
-    }
-
-    // Ctrl+Shift+J
-    if (e.ctrlKey && e.shiftKey && e.key === "J") {
-        e.preventDefault();
-    }
-
-    // Ctrl+U (View Source)
-    if (e.ctrlKey && e.key === "u") {
-        e.preventDefault();
-    }
-
-});
-
-// Basic DevTools detection
-
+  });
+}
 </script>
 
 </body>
