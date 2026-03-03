@@ -496,8 +496,11 @@ get(slotsRef).then(snap=>{
 if(snap.exists()){
 const data = snap.val();
 slotContainer.innerHTML="";
-totalSlots = Object.keys(data).length;
-
+// Get highest existing slot number instead of length
+const numbers = Object.keys(data).map(k =>
+  parseInt(k.replace("slot",""))
+);
+totalSlots = Math.max(...numbers);
 Object.keys(data)
 .sort((a,b)=>{
     return parseInt(a.replace("slot","")) - parseInt(b.replace("slot",""));
@@ -674,7 +677,37 @@ b.disabled=false;
 });
 }
 };
+window.deleteBooking = () => {
 
+  if (!isAdmin) {
+    showAlert("Admin login required");
+    return;
+  }
+
+  if (!selectedSlot) {
+    showAlert("Select slot first");
+    return;
+  }
+
+  if (confirm("Delete booking for selected slot?")) {
+
+    remove(ref(db, "bookings/slot" + selectedSlot)).then(() => {
+
+      const btn = document.querySelector(`[data-slot='${selectedSlot}']`);
+
+      if (btn) {
+        btn.classList.remove("booked");
+        btn.classList.remove("selected");
+      }
+
+      selectedSlot = null;
+
+      showAlert("Booking deleted successfully");
+
+    });
+
+  }
+};
 window.deleteSelectedSlot = ()=>{
 if(!selectedSlot) return showAlert("Select slot first");
 
@@ -690,7 +723,7 @@ const name = customSlotName.value.trim();
 if(!name) return showAlert("Enter slot name");
 
 totalSlots++;
-
+window.deleteSelectedSlot=()=>{ if(!selectedSlot)return showAlert("Select slot first"); document.querySelector(`[data-slot='${selectedSlot}']`).remove(); selectedSlot=null; };
 set(ref(db,"slots/slot"+totalSlots),{
 name:name
 }).then(()=>{
