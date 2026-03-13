@@ -378,7 +378,7 @@ color:#fff;
 <body>
 
 <div class="header">
-<div class="header-title">Yash , AnK And Brock Birthday  Convoy 2026</div>
+<div class="header-title">Yash , AnK And Brock Birthday Convoy 2026</div>
 <div class="sub">
 📅 20/09/2026 | <br>🎮ETS2 <br>
 🗺️ Milan (SLOTS) ➝ 📍Strasbourg <br> &Nscr; (Stein Bruch)
@@ -706,14 +706,18 @@ alertBox.style.display="block";
 setTimeout(()=>alertBox.style.display="none",3000);
 }
 
-window.adminLogin=()=>{
-get(ref(db,"admin/password")).then(snap=>{
-if(snap.exists()&&adminPass.value===snap.val()){
-adminControls.style.display="block";
-isAdmin=true; // ✅ enable admin selection
+window.adminLogin = () => {
+
+const password = document.getElementById("adminPass").value;
+
+if(password === import.meta.env.VITE_ADMIN_PASSWORD){
+adminControls.style.display = "block";
+isAdmin = true;
 showAlert("Admin logged in");
-}else showAlert("Wrong password");
-});
+}else{
+showAlert("Wrong password");
+}
+
 };
 window.adminLogout=()=>{
 adminControls.style.display="none";
@@ -1215,7 +1219,7 @@ loadSlots();
 
 <div class="summary-row">
 <span>Event</span>
-<b>Yash Birthday Public Convoy 2026</b>
+<b>Yash , AnK And Brock Birthday Convoy 2026</b>
 </div>
 
 <div class="summary-row">
