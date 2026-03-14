@@ -449,7 +449,7 @@ color:#fff;
 </div>
 </div>
 
-<div class="popup" id="popup">=
+<div class="popup" id="popup">
   <div class="popup-box professional-popup">
 
     <div class="popup-header">
@@ -706,16 +706,38 @@ alertBox.style.display="block";
 setTimeout(()=>alertBox.style.display="none",3000);
 }
 
-window.adminLogin = () => {
+window.adminLogin = async () => {
 
 const password = document.getElementById("adminPass").value;
 
-if(password === import.meta.env.VITE_ADMIN_PASSWORD){
-adminControls.style.display = "block";
+try{
+
+const response = await fetch("/api/admin-login",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body: JSON.stringify({ password })
+});
+
+const data = await response.json();
+
+if(data.success){
+
+document.getElementById("adminControls").style.display = "block";
 isAdmin = true;
 showAlert("Admin logged in");
+
 }else{
+
 showAlert("Wrong password");
+
+}
+
+}catch(e){
+
+showAlert("Server error");
+
 }
 
 };
